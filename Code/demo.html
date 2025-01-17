@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 Player Shooting Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-image: url(img/\(119\).jpg);
+        }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const PLAYER_SIZE = 40;
+    const BULLET_SIZE = 10;
+    const SPEED = 5;
+    const BULLET_SPEED = 7;
+    const SHOOT_DELAY = 2000; // 2 seconds delay for shooting
+    const MAX_HEALTH = 200;
+
+    const player1 = {
+        x: 100,
+        y: canvas.height / 2,
+        color: 'blue',
+        bullets: [],
+        health: MAX_HEALTH,
+        lastShotTime: 0,
+        direction: 'right', // Default direction for player1
+    };
+
+    const player2 = {
+        x: canvas.width - 140,
+        y: canvas.height / 2,
+        color: 'red',
+        bullets: [],
+        health: MAX_HEALTH,
+        lastShotTime: 0,
+        direction: 'left', // Default direction for player2
+    };
+
+    const walls = [];
+
+    // Create random walls: two types (rectangular or two joined rectangles)
+    function generateRandomWalls() {
+        for (let i = 0; i < 10; i++) {
+            const isTwoRects = Math.random() < 0.5; // 50% chance of 2 joined rectangles
+            if (isTwoRects) {
+                const width1 = Math.random() * 100 + 50;
+                const height1 = Math.random() * 100 + 50;
+                const width2 = Math.random() * 100 + 50;
+                const height2 = Math.random() * 100 + 50;
+                const x1 = Math.random() * (canvas.width - width1);
+                const y1 = Math.random() * (canvas.height - height1);
+                const x2 = x1 + width1;
+                const y2 = y1;
+                walls.push({ x1, y1, width1, height1, x2, y2, width2, height2 });
+            } else {
+                const width = Math.random() * 100 + 50;
+                const height = Math.random() * 100 + 50;
+                const x = Math.random() * (canvas.width - width);
+                const y = Math.random() * (canvas.height - height);
+                walls.push({ x, y, width, height });
+            }
+        // Check if the wall collides with any player and move it if necessary
+        if (checkCollisionWithPlayer(wall)) {
+                // Reposition the wall if there's a collision
+                while (checkCollisionWithPlayer(wall)) {
+                    if (wall.x2) {
+                        wall.x1 = Math.random() * (canvas.width - wall.width1);
+                        wall.y1 = Math.random() * (canvas.height - wall.height1);
+                        wall.x2 = wall.x1 + wall.width1;
+                    } else {
+                        wall.x = Math.random() * (canvas.width - wall.width);
+                        wall.y = Math.random() * (canvas.height - wall.height);
+                    }
+                }
+            }
+            walls.push(wall);
+        }
+    }
+
+    // Check if the wall collides with any player
+    function checkCollisionWithPlayer(wall) {
+        const players = [player1, player2];
+        for (const player of players) {
+            if (wall.x2) { // Two rectangles
+                if (
+                    (player.x + PLAYER_SIZE > wall.x1 && player.x < wall.x1 + wall.width1 && player.y + PLAYER_SIZE > wall.y1 && player.y < wall.y1 + wall.height1) ||
+                    (player.x + PLAYER_SIZE > wall.x2 && player.x < wall.x2 + wall.width2 && player.y + PLAYER_SIZE > wall.y2 && player.y < wall.y2 + wall.height2)
+                ) {
+                    return true;
+                }
+            } else { // Single rectangle
+                if (player.x + PLAYER_SIZE > wall.x && player.x < wall.x + wall.width &&
+                    player.y + PLAYER_SIZE > wall.y && player.y < wall.y + wall.height) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Draw walls
+    function drawWalls() {
+        walls.forEach(wall => {
+            if (wall.x2) { // Two rectangles
+                ctx.fillStyle = 'gray';
+                ctx.fillRect(wall.x1, wall.y1, wall.width1, wall.height1);
+                ctx.fillRect(wall.x2, wall.y2, wall.width2, wall.height2);
+            } else { // Single rectangle
+                ctx.fillStyle = 'gray';
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            }
+        });
+    }
+
+    // Draw health bar for a player
+    function drawHealthBar(player) {
+        const barWidth = 100;
+        const barHeight = 10;
+        const healthPercentage = player.health / MAX_HEALTH;
+        ctx.fillStyle = 'red';
+        ctx.fillRect(player.x, player.y - 15, barWidth, barHeight); // Background bar
+        ctx.fillStyle = 'green';
+        ctx.fillRect(player.x, player.y - 15, barWidth * healthPercentage, barHeight); // Foreground bar
+    }
+
+    // Handle player movement and collision with walls
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+    });
+
+    function movePlayer(player, upKey, downKey, leftKey, rightKey) {
+        const oldX = player.x;
+        const oldY = player.y;
+
+        if (keys[upKey] && player.y > 0) player.y -= SPEED;
+        if (keys[downKey] && player.y < canvas.height - PLAYER_SIZE) player.y += SPEED;
+        if (keys[leftKey] && player.x > 0) player.x -= SPEED;
+        if (keys[rightKey] && player.x < canvas.width - PLAYER_SIZE) player.x += SPEED;
+
+        // Check collision with walls
+        if (checkCollision(player)) {
+            player.x = oldX;
+            player.y = oldY;
+        }
+    }
+
+    // Check for collision between player and walls
+    function checkCollision(player) {
+        for (const wall of walls) {
+            if (wall.x2) { // Two rectangles
+                if (player.x + PLAYER_SIZE > wall.x1 && player.x < wall.x1 + wall.width1 &&
+                    player.y + PLAYER_SIZE > wall.y1 && player.y < wall.y1 + wall.height1 ||
+                    player.x + PLAYER_SIZE > wall.x2 && player.x < wall.x2 + wall.width2 &&
+                    player.y + PLAYER_SIZE > wall.y2 && player.y < wall.y2 + wall.height2) {
+                    return true;
+                }
+            } else { // Single rectangle
+                if (player.x + PLAYER_SIZE > wall.x && player.x < wall.x + wall.width &&
+                    player.y + PLAYER_SIZE > wall.y && player.y < wall.y + wall.height) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Shoot bullets based on direction
+    function shoot(player, shootKey) {
+        if (keys[shootKey] && Date.now() - player.lastShotTime >= SHOOT_DELAY) {
+            let direction;
+            if (keys['w']) direction = 'up';
+            else if (keys['s']) direction = 'down';
+            else if (keys['a']) direction = 'left';
+            else if (keys['d']) direction = 'right';
+            else direction = player.direction; // Default direction
+
+            player.bullets.push({
+                x: player.x + PLAYER_SIZE / 2,
+                y: player.y + PLAYER_SIZE / 2,
+                direction: direction
+            });
+            player.lastShotTime = Date.now();
+        }
+    }
+
+    // Update bullet positions and check for wall collisions
+    function updateBullets(bullets) {
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            const bullet = bullets[i];
+            if (bullet.direction === 'up') bullet.y -= BULLET_SPEED;
+            else if (bullet.direction === 'down') bullet.y += BULLET_SPEED;
+            else if (bullet.direction === 'left') bullet.x -= BULLET_SPEED;
+            else if (bullet.direction === 'right') bullet.x += BULLET_SPEED;
+
+            // Check if the bullet hits a wall
+            if (checkBulletWallCollision(bullet)) {
+                // Reverse bullet direction if it hits a wall
+                if (bullet.direction === 'up') bullet.direction = 'down';
+                else if (bullet.direction === 'down') bullet.direction = 'up';
+                else if (bullet.direction === 'left') bullet.direction = 'right';
+                else if (bullet.direction === 'right') bullet.direction = 'left';
+            }
+
+            // Remove bullet if out of bounds
+            if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+                bullets.splice(i, 1);
+            }
+        }
+    }
+
+    // Check for collision between bullet and walls
+    function checkBulletWallCollision(bullet) {
+        for (const wall of walls) {
+            if (wall.x2) { // Two rectangles
+                if (
+                    (bullet.x > wall.x1 && bullet.x < wall.x1 + wall.width1 && bullet.y > wall.y1 && bullet.y < wall.y1 + wall.height1) ||
+                    (bullet.x > wall.x2 && bullet.x < wall.x2 + wall.width2 && bullet.y > wall.y2 && bullet.y < wall.y2 + wall.height2)
+                ) {
+                    return true;
+                }
+            } else { // Single rectangle
+                if (bullet.x > wall.x && bullet.x < wall.x + wall.width && bullet.y > wall.y && bullet.y < wall.y + wall.height) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Detect hit between bullet and player
+    function detectHit(bullets, player) {
+        bullets.forEach(bullet => {
+            if (bullet.x > player.x && bullet.x < player.x + PLAYER_SIZE &&
+                bullet.y > player.y && bullet.y < player.y + PLAYER_SIZE) {
+                player.health -= 10;
+                bullets.splice(bullets.indexOf(bullet), 1);
+            }
+        });
+    }
+
+    // Draw player health bar
+    function drawHealthBar(player) {
+        const barWidth = 100;
+        const barHeight = 10;
+        const healthPercentage = player.health / MAX_HEALTH;
+        ctx.fillStyle = 'red';
+        ctx.fillRect(player.x, player.y - 15, barWidth, barHeight); // Background bar
+        ctx.fillStyle = 'green';
+        ctx.fillRect(player.x, player.y - 15, barWidth * healthPercentage, barHeight); // Foreground bar
+    }
+
+    // Draw the player
+    function drawPlayer(player) {
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+    }
+
+    // Draw bullets
+    function drawBullets(bullets, color) {
+        ctx.fillStyle = color;
+        bullets.forEach(bullet => {
+            ctx.fillRect(bullet.x, bullet.y, BULLET_SIZE, BULLET_SIZE);
+        });
+    }
+
+    // Game loop
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        movePlayer(player1, 'w', 's', 'a', 'd');
+        movePlayer(player2, 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight');
+        shoot(player1, 'j');
+        shoot(player2, '1');
+
+        updateBullets(player1.bullets);
+        updateBullets(player2.bullets);
+
+        detectHit(player1.bullets, player2);
+        detectHit(player2.bullets, player1);
+
+        drawWalls();
+        drawPlayer(player1);
+        drawPlayer(player2);
+        drawHealthBar(player1);
+        drawHealthBar(player2);
+        drawBullets(player1.bullets, 'blue');
+        drawBullets(player2.bullets, 'red');
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    generateRandomWalls();
+    gameLoop();
+</script>
+</body>
+</html>

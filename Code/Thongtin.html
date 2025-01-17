@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin khách hàng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Thiết kế container của thông tin khách hàng */
+        .customer-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        td {
+            color: #333;
+        }
+
+        /* Thiết kế button */
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+        .btn-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 90px;
+}
+
+.btn-home:hover {
+    background-color: #45a049;
+}
+    </style>
+</head>
+<body>
+    <button class="btn-home" onclick="location.href='index.html'">Home</button>
+    <div class="customer-container">
+        <h2>Thông tin khách hàng</h2>
+        
+        <table id="customerTable">
+            <thead>
+                <tr>
+                    <th>Tên khách hàng</th>
+                    <th>Email</th>
+                    <th>Căn cước công dân</th>
+                    <th>Địa chỉ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Thông tin khách hàng sẽ hiển thị ở đây -->
+            </tbody>
+        </table>
+        
+        <button class="button" id="loadButton">Tải thông tin khách hàng</button>
+    </div>
+
+    <script>
+        // Dữ liệu khách hàng mẫu
+        const customers = [
+            { name: 'Nguyễn Hoàng Thanh Phong', email: 'phongnhttb00964@fpt.edu.vn', cccd: '075207022447', address: 'Đồng Nai' },
+            { name: 'Nguyễn Minh Hoàng ', email: 'hoangnmtb00385@fpt.edu.vn ',  cccd: '075207007866', address: 'Đồng Nai' },
+            { name: 'Phạm Đình Nguyên', email: 'nguyenpdtb973@fpt.edu.vn',  cccd: '075207002059', address: 'Đồng Nai' },
+            { name: 'Phạm Vũ Gia Kiệt', email: 'kietpvgtb00675@fpt.edu.vn',  cccd: '075207016572', address: 'Đồng Nai' },
+            { name: 'Đỗ Thu Hiền', email: 'hiendttb00952@fpt.edu.vn',  cccd: '075307020022', address: 'Đồng Nai' }
+        ];
+
+        const customerTable = document.getElementById("customerTable").getElementsByTagName('tbody')[0];
+        const loadButton = document.getElementById("loadButton");
+
+        // Hàm để tải thông tin khách hàng vào bảng
+        function loadCustomerData() {
+            // Xóa các dòng cũ nếu có
+            customerTable.innerHTML = '';
+
+            // Lặp qua danh sách khách hàng và thêm vào bảng
+            customers.forEach(customer => {
+                const row = customerTable.insertRow();
+
+                row.insertCell(0).textContent = customer.name;
+                row.insertCell(1).textContent = customer.email;
+                row.insertCell(2).textContent = customer. cccd;
+                row.insertCell(3).textContent = customer.address;
+            });
+        }
+
+        // Gắn sự kiện cho nút tải thông tin
+        loadButton.addEventListener("click", loadCustomerData);
+    </script>
+
+</body>
+</html>

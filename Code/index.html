@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Index</title>
+    <link rel="stylesheet" href="Css.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div id="toast-container"></div>
+    <nav class="menu">
+        <ul>
+            <li><a href="#"onclick="reloadPage()">Trang chủ</a></li>
+            <li><a href="#" onclick="showCategory('nuoc'); scrollToProducts()" >Sản phẩm</a></li>
+            <li><a href="#">Dịch vụ</a></li>
+            <li><a href="#">Liên hệ</a></li>
+            <li><a href="#">Giới thiệu</a></li>
+        </ul>
+
+
+        <div class="auth-buttons">
+            <ul>
+                <a href="Dangnhap.html">Đăng nhập</a>
+            </ul>
+        </div>  
+        
+        <form class="search-bar" onsubmit="searchProducts(event)">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm...">
+            <button type="submit">Tìm</button>
+        </form>
+    </nav>
+    <!-- Slideshow -->
+    <div class="slideshow-container">
+        <div id="slider">
+            <i class="fa-solid fa-circle-left" id="prev" onclick="prev()"></i>
+            <i class="fa-solid fa-circle-right" id="next" onclick="next()"></i>
+        </div>
+    </div>
+    <div class="menu1" id="menu1">
+        <a data-category="nuoc" class="product1" data-name="Nước ngọt">Nước</a>
+        <a data-category="banh" class="product1" data-name="Bánh quy">Bánh</a>
+        <a data-category="keo" class="product1" data-name="Kẹo dẻo">Kẹo</a>
+        <a data-category="do-gia-dung" class="product1" data-name="Đồ gia dụng">Đồ gia dụng</a>
+    </div>
+    
+    
+    <!-- Nút hiển thị/dấu danh sách yêu thích -->
+    <button id="favoritesButton" onclick="toggleFavoritesList()">Yêu thích</button>
+    <!-- Danh sách yêu thích -->
+    <div id="favoritesList" style="display:none;">
+        <h2>Sản phẩm yêu thích</h2>
+        <div id="favoritesContainer"></div>
+    </div>
+
+
+
+<!-- giỏ hàng  -->
+    <!-- Giỏ hàng -->
+    <div id="cartForm" class="cart-form">
+        <h2>Giỏ hàng</h2>
+        <button id="closeCart" class="close-btn" ><i class="fas fa-times"></i></button>
+        <ul id="cartList"></ul>
+        <p id="totalPrice" class="tt">Tổng tiền: 0 VND</p>
+        <button id="checkoutButton" class="nut">Thanh toán</button>
+    </div>
+
+    <!-- Nút mở giỏ hàng -->
+    <button id="openCartButton" class="open-btn">
+        <i class="fas fa-shopping-cart"></i> Giỏ hàng
+    </button>
+
+    <!-- Hiển thị sản phẩm -->
+    <div id="productContainer">
+        
+    </div>
+
+<!-- giỏ hàng -->
+
+
+    <div class="container" id="productContainer">
+        <div id="product-list"></div> <!-- Nơi hiển thị danh sách sản phẩm -->
+        <!-- Default category products will load here -->
+    </div>
+
+
+    <!-- chatbox -->
+   <!-- Nút mở/đóng chatbox -->
+   <div class="toggle-btn" onclick="toggleChatbox()">💬</div>
+
+   <!-- Chatbox container -->
+   <div class="chatbox-container" id="chatbox">
+       <div class="chatbox-header">
+           <h3>Chatbot</h3>
+           <div class="close-btn" onclick="closeChatbox()">✖</div>
+       </div>
+       <div class="chatbox-body" id="chatbox-body">
+           <div class="message bot">Chào bạn, tôi là chatbot. Có thể giúp gì cho bạn?</div>
+       </div>
+       <div class="chatbox-footer">
+           <input type="text" id="user-input" placeholder="Nhập tin nhắn..." onkeydown="checkEnter(event)">
+           <button onclick="sendMessage()">Gửi</button>
+       </div>
+   </div>
+
+    <!-- Form Doanh thu -->
+    <button class="toggle-btn1" onclick="toggleForm1()">Hiển thị Doanh thu theo ngày</button>
+
+    
+    <!-- Form Doanh thu -->
+    <div class="revenue-form" id="revenueForm">
+        <h1>Doanh thu theo ngày</h1>
+        <div class="revenue-chart" id="chart">
+            <!-- Cột sẽ được tạo bởi JavaScript -->
+        </div>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <!-- Mã giảm giá hiển thị -->
+    <div class="discount-box" id="discountBox">
+        Nhận mã giảm giá: <span id="randomCode"></span>
+    </div>
+
+   <div class="form-wrapper">
+    <button id="toggleButton">Hiển thị Thống kê</button>
+        <div id="statisticContainer">
+            <h2>Thống kê số lượng sản phẩm</h2>
+            <ul id="statistics"></ul>
+        </div>
+    </div>
+
+
+    <!-- quản lí tài khoản -->
+     
+    <!-- Nút bật/tắt Form -->
+    <button class="toggle-btn2" onclick="toggleForm2()">Quản lý tài khoản</button>
+
+    <!-- Form Quản lý tài khoản -->
+    <div class="account-form" id="accountForm">
+        <h1>Quản lý tài khoản cá nhân</h1>
+        <input type="text" placeholder="Tên tài khoản" />
+        <input type="password" placeholder="Mật khẩu" />
+        <input type="email" placeholder="Email" />
+        <button>Lưu thông tin</button>
+    </div>
+
+       
+    <footer>
+        <div class="footer-container">
+            <div class="footer-item">
+                <h3>Thông tin liên hệ</h3>
+                <p>Địa chỉ: Phổ THông cao đẳng FPT Polytechnic Đồng Nai</p>
+                <p>Email: phongnhttb00964@fpt.edu.vn</p>
+                <p>Điện thoại: +84 339 595 501</p>
+            </div>
+    
+            <div class="footer-item">
+                <h3>Thành viên nhóm </h3>
+                <ul>
+                    <li><a href="#">Nguyễn Hoàng Thanh Phong</a></li>
+                    <li><a href="#">Nguyễn Duy Tân </a></li>
+                    <li><a href="#">Lê Anh Kiệt</a></li>
+                    <li><a href="#">Phạm Vũ Gia Kiệt</a></li>
+                    <li><a href="#">Đỗ Thu Hiền</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-item">
+                <h3>Chính sách</h3>
+                <ul>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-item">
+                <h3>Theo dõi chúng tôi</h3>
+                <ul class="social-links">
+                    <li><a href="#" ></i> Facebook</a></li>
+                    <li><a href="#" ></i> Twitter</a></li>
+                    <li><a href="#" ></i> Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;Agile Nhóm 4 SD1803</p>
+        </div>
+    </footer>
+    
+    <script src="Javascript.js"></script>
+</body>
+</html>
